@@ -1,4 +1,5 @@
 ﻿using DagbladetWebscrapper.Data;
+using Webscrapper.Lib;
 
 namespace DagbladetWebscrapper;
 
@@ -18,8 +19,11 @@ public static class MauiProgram
 		#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
-		
-		builder.Services.AddSingleton<WeatherForecastService>();
+
+		builder.Services.AddScoped<ISummarizationUtil, SummarizationUtil>();
+        builder.Services.AddScoped<IPageExtractionUtil, PageExtractionUtil>();
+
+        builder.Services.AddSingleton<WeatherForecastService>();
 
 		return builder.Build();
 	}

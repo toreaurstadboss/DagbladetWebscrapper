@@ -1,7 +1,52 @@
 ﻿@page "/"
+@inject ISummarizationUtil SummarizationUtil
+@inject IPageExtractionUtil PageExtractionUtil
 
-<h1>Hello, world!</h1>
+@using DagbladetWebscrapper.Models;
 
-Welcome to your new app.
+<h1>Dagbladet Artikkel Oppsummering</h1>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<EditForm Model="@Model" OnValidSubmit="@Submit" class="form-group">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+  
+    <div class="form-group row">
+    <label for="Model.ArticleUrl">Url til artikkel</label>
+    <InputText @bind-Value="Model!.ArticleUrl" placeholder="Skriv inn url til artikkel i Dagbladet" />
+    </div>
+
+    <div class="form-group row">
+    <span>Artikkelens oppsummering</span>
+    <InputTextArea readonly="readonly" placeholder="Her dukker opp artikkelens oppsummering" @bind-Value="Model!.SummarySentences" rows="5"></InputTextArea>
+    </div>
+
+    <div class="form-group row">
+    <span>Artikkelens tekst</span>
+    <InputTextArea readonly="readonly" placeholder="Her dukker opp teksten til artikkelen" @bind-Value="Model!.ArticleText" rows="5"></InputTextArea>
+    </div>
+    
+    <button type="submit">Submit</button>
+
+
+</EditForm>
+
+@code {
+    private Azure.AI.TextAnalytics.TextAnalyticsClient _client;
+
+    public IndexModel Model { get; set; } = new();
+
+    private async void Submit()
+    {
+        string articleText = await PageExtractionUtil.ExtractHtml(Model!.ArticleUrl, false);
+        Model.ArticleText = articleText;
+        if (_client == null)
+        {
+            _client = TextAnalyticsClientFactory.CreateClient();
+        }
+        string summaryText = await SummarizationUtil.GetExtractiveSummarizeSentectesResult(articleText, _client);
+        Model.SummarySentences = summaryText;
+
+        StateHasChanged();
+    }   
+
+}

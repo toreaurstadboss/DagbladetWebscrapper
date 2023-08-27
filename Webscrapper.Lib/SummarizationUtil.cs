@@ -30,8 +30,6 @@ namespace Webscrapper.Lib
 			return string.Join(Environment.NewLine, summaries.Select(s => s.Sentences).SelectMany(x => x).Select(x => x.Text));
 		}
 
-		
-
 	}
 
 }
