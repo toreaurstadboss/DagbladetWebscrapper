@@ -13,7 +13,11 @@ namespace Webscrapper.Lib
 				document
 			};
 			var result = new List<ExtractiveSummarizeResult>();
-			var operation = await client.ExtractiveSummarizeAsync(Azure.WaitUntil.Completed, batchedDocuments);
+			var options = new ExtractiveSummarizeOptions
+			{
+				 MaxSentenceCount = 5
+			};
+			var operation = await client.ExtractiveSummarizeAsync(Azure.WaitUntil.Completed, batchedDocuments, options: options);
 			await foreach (ExtractiveSummarizeResultCollection documentsInPage in operation.Value)
 			{
 				foreach (ExtractiveSummarizeResult documentResult in documentsInPage)
