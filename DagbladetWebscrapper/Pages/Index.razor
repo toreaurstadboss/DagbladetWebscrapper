@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject ISummarizationUtil SummarizationUtil
 @inject IPageExtractionUtil PageExtractionUtil
+@inject IJSRuntime JS
 
 @using DagbladetWebscrapper.Models;
 
@@ -12,7 +13,7 @@
   
     <div class="form-group row">
     <label for="Model.ArticleUrl">Url til artikkel</label>
-    <InputText @bind-Value="Model!.ArticleUrl" placeholder="Skriv inn url til artikkel i Dagbladet" />
+    <InputText @bind-Value="Model!.ArticleUrl" placeholder="Skriv inn url til artikkel i Dagbladet" @ref="urlTextRef" id="articleUrl" />
     </div>
 
     <div class="form-group row">
@@ -27,11 +28,12 @@
     
     <button type="submit">Submit</button>
 
-
 </EditForm>
 
 @code {
     private Azure.AI.TextAnalytics.TextAnalyticsClient _client;
+
+    private InputText urlTextRef;
 
     public IndexModel Model { get; set; } = new();
 
@@ -47,6 +49,14 @@
         Model.SummarySentences = summaryText;
 
         StateHasChanged();
-    }   
+    }  
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("exampleJsFunctions.focusElement", urlTextRef?.AdditionalAttributes.FirstOrDefault(a => a.Key?.ToLower() == "id").Value);
+        }
+    }
 
 }
